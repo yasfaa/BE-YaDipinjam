@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('email')->unique();
             $table->string('username');
-            $table->string('phone');
-            $table->integer('balance', 10);
-            $table->integer('trust_point', 10);
-            $table->integer('status', 10);
+            $table->string('phone')->nullable();
+            $table->integer('balance')->nullable();
+            $table->integer('trust_point')->nullable();
+            $table->integer('status')->nullable();
             $table->enum('role', ['admin', 'user']);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('authors', function (Blueprint $table) {
+        Schema::create('circulated_pictures', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->unsignedBigInteger('Circulated_BookID');
+            $table->foreign('Circulated_BookID')->references('id')->on('circulated_books');
+            $table->string('path');
             $table->timestamps();
-        });
+        });        
     }
 
     /**
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('authors');
+        Schema::dropIfExists('circulated_pictures');
     }
 };

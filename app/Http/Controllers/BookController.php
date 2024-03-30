@@ -34,4 +34,42 @@ class BookController extends Controller
             'tittle' => $request->tittle,
         ]);
     }
+
+    public function fetchBook(Request $request = null, $ISBN = null)
+    {
+        if ($request != null && $ISBN == null) {
+            $reqISBN = $request->input('ISBN');
+            $url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $reqISBN;
+        } elseif ($request == null && $ISBN != null) {
+            $url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $ISBN;
+        } elseif ($request == null && $ISBN == null) {
+            return response()->json([
+                "code" => 400,
+                "message" => "Bad Request: Please only passing one data."
+            ], 400);
+        }
+        try {
+            $response = Http::get($url);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                return response()->json([
+                    "code" => 200,
+                    "message" => "success",
+                    "data" => $data
+                ],200);
+            } else {
+                return response()->json([
+                    "code" => 404,
+                    "message" => "Error fetching book data"
+                ],404);
+            }
+        } catch (\Throwable $e) {
+            return response()->json([
+                "code" => 500,
+                "message" => "Internal Server Error"
+            ]);
+        }
+    }
 }

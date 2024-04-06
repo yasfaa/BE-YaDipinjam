@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\PublisherController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,4 +30,7 @@ Route::prefix('/auth')->group(function () {
 
 Route::prefix('/book')->group(function () {
     Route::post('/get-by-ISBN',[BookController::class,'fetchBook']);
+Route::prefix('/publisher')->group(function () {
+    Route::post('/store',[PublisherController::class,'create']);
+    Route::get('/get', [PublisherController::class,'get']);
 });

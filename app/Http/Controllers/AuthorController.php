@@ -57,4 +57,16 @@ class AuthorController extends Controller
             ], 500);
         }
     }
+    public function getID($name) {
+        try {
+            $data = Author::where('name', $name)->first();
+            if ($data) {
+                return $data->id;
+            } else {
+                return null;
+            }
+        } catch (\Throwable $th) {
+            return null;
+        }
+    }
 }

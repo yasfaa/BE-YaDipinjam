@@ -57,5 +57,16 @@ class PublisherController extends Controller
             ], 500);
         }
     }
-
+    public function getID($name) {
+        try {
+            $data = Publisher::where('name', $name)->first();
+            if ($data) {
+                return $data->id;
+            } else {
+                return null;
+            }
+        } catch (\Throwable $th) {
+            return null;
+        }
+    }
 }

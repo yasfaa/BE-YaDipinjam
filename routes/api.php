@@ -40,6 +40,7 @@ Route::prefix('/book')->group(function () {
 Route::prefix('/publisher')->group(function () {
     Route::post('/store',[PublisherController::class,'create']);
     Route::get('/get', [PublisherController::class,'get']);
+    Route::get('/gets', [PublisherController::class,'getID']);
 });
 
 Route::prefix('/author')->group(function () {

@@ -9,9 +9,14 @@ class PublisherController extends Controller
 {
     public function create(Request $request) {
         try {
-            Publisher::create([
+            $pub = Publisher::create([
                 "name" => $request->input("name")
             ]);
+            return response()->json([
+                "code" => 200,
+                "message" => "success",
+                "data" => $pub
+            ], 200);
         } catch (\Exceptions $exceptions) {
             return response()->json([
                 "code" => 500,

@@ -7,6 +7,16 @@ use App\Models\Publisher;
 
 class PublisherController extends Controller
 {
+    public function store($name) {
+        try {
+            $author = Publisher::create([
+                "name" => $name
+            ]);
+            return $author->id;
+        } catch (\Throwable $th) {
+            return null;
+        }
+    }
     public function create(Request $request) {
         try {
             $pub = Publisher::create([

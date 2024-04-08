@@ -7,6 +7,16 @@ use App\Models\Author;
 
 class AuthorController extends Controller
 {
+    public function store($name) {
+        try {
+            $author = Author::create([
+                "name" => $name
+            ]);
+            return $author->id;
+        } catch (\Throwable $th) {
+            return null;
+        }
+    }
     public function create(Request $request) {
         try {
             $author = Author::create([
@@ -21,7 +31,7 @@ class AuthorController extends Controller
             return response()->json([
                 "code" => 500,
                 "message" => "fail",
-                "error" => $exceptions
+                "error" => $Z
             ], 500);
         }
     }

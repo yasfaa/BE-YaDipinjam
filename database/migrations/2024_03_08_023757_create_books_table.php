@@ -1,4 +1,4 @@
-<?php
+    <?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,7 +15,6 @@ return new class extends Migration
             $table->string('ISBN')->primary();
             $table->unsignedBigInteger('publisherID');
             $table->foreign('publisherID')->references('id')->on('publishers');
-            $table->unsignedBigInteger('authorID');
             $table->integer('year');
             $table->string('tittle');
             $table->timestamps();

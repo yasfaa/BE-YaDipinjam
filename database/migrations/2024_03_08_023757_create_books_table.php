@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('publisherID');
             $table->foreign('publisherID')->references('id')->on('publishers');
             $table->unsignedBigInteger('authorID');
-            $table->foreign('authorID')->references('id')->on('authors');
             $table->integer('year');
             $table->string('tittle');
             $table->timestamps();

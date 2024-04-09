@@ -72,6 +72,26 @@ class BookController extends Controller
             ]);
         }
     }
+
+    public function getByTitle(Request $request)
+    {
+        try {
+            $title = $request->query('title');
+            $book = Book::where('tittle', $title)->firstOrFail();
+
+            return response()->json([
+                "code" => 200,
+                "message" => "success",
+                "data" => $book
+            ]);
+        } catch (\Excaption $exceptions) {
+            return response()->json([
+                "code" => 500,
+                "message" => "fail",
+                "error" => $exceptions
+            ], 500);
+        }
+    }
     public function getByISBN(Request $request)
     {
         try {

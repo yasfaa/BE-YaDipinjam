@@ -205,23 +205,38 @@ class BookController extends Controller
             ], 500);
         }
     }
-    public function getByISBN(Request $request)
-    {
-        try {
+    public function getByISBN(Request $request = null, $ISBN = null)
+{
+    try {
+        // If $ISBN is not provided as a parameter, try to get it from the request
+        if (!$ISBN && $request) {
             $ISBN = $request->query('ISBN');
-            $book = Book::where('ISBN', $ISBN)->firstOrFail();
-
-            return response()->json([
-                "code" => 200,
-                "message" => "success",
-                "data" => $book
-            ]);
-        } catch (\Excaption $exceptions) {
-            return response()->json([
-                "code" => 500,
-                "message" => "fail",
-                "error" => $exceptions
-            ], 500);
         }
+
+        // If $ISBN is still not available, return a response indicating bad request
+        if (!$ISBN) {
+            return response()->json([
+                "code" => 400,
+                "message" => "Bad request: ISBN is required"
+            ], 400);
+        }
+
+        // Find the book with the provided ISBN
+        $book = Book::where('ISBN', $ISBN)->firstOrFail();
+
+        return response()->json([
+            "code" => 200,
+            "message" => "success",
+            "data" => $book
+        ]);
+    } catch (\Exception $exception) {
+        // Handle exceptions
+        return response()->json([
+            "code" => 500,
+            "message" => "fail",
+            "error" => $exception->getMessage()
+        ], 500);
     }
+}
+
 }

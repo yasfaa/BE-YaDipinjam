@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\CirculatedBook;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\PublisherController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\BookAuthorController;
+use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
@@ -115,6 +117,35 @@ class BookController extends Controller
         }
     }
 
+    //this upload is storing the data into circulated book correspond to the user that upload
+    public function upload(Request $request)
+    {
+        $ISBN = $request->input('ISBN');
+        $description = $request->input('description');
+        $price = $request->input('price');
+
+        try {
+            $user = Auth::id();
+            $data = CirculatedBook::create([
+                "BooksISBN" => $ISBN,
+                "description" => $description,
+                "price" => $price,
+                "status" => "available",
+                "userID" => $user
+            ]);
+
+            return response()->json([
+                "code" => 200,
+                "message" => "success",
+                "data" => $data
+            ],200);
+
+        } catch (\Exceptions $exceptions) {
+            return response()->json([
+                "code" => 500,
+                "message" => "Internal Server Error"
+
+            ],500);
         }
     }
     public function fetchBook(Request $request = null, $ISBN = null)

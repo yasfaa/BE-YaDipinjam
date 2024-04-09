@@ -27,14 +27,16 @@ Route::prefix('/auth')->group(function () {
     Route::post('/login',[AuthController::class,'login']);
     Route::post('/register',[AuthController::class,'register']);
     Route::post('/logout',[AuthController::class,'logout'])->middleware('auth:sanctum');
+    Route::post('/get',[AuthController::class,'getUser'])->middleware('auth:sanctum');
 });
 
 Route::prefix('/book')->group(function () {
     Route::post('/get-by-ISBN',[BookController::class,'fetchBook']);
     Route::post('/store',[BookController::class,'createBook']);
-    Route::post('/test',[BookController::class,'test']);
+    Route::post('/upload',[BookController::class,'upload'])->middleware('auth:sanctum');
     Route::get('/get-by-title', [BookController::class,'getByTitle']);
     Route::get('/get-by-isbn', [BookController::class,'getByISBN']);
+
 });
 
 Route::prefix('/publisher')->group(function () {

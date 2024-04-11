@@ -34,86 +34,176 @@ class BookController extends Controller
     */
 
     //this code bellow will store book data into book, and act as master data
-    public function createBook(Request $request)
+    public function createBook(Request $request = null, $ISBN = null, $publisher = null, $author = null, $year = null, $title = null)
     {
         $PublisherController = new PublisherController();
         $AuthorController = new AuthorController();
         $BookAuthorController = new BookAuthorController();
 
-        $request->validate([
-            'ISBN' => 'required|unique:books'
-        ]);
-
-        $ISBN = $request->input('ISBN');
-        $existingBook = Book::where('ISBN', $ISBN)->first();
-
-        if ($existingBook) {
+        if ($request && $ISBN && $publisher && $author && $year && $title) {
             return response()->json([
                 "code" => 400,
-                "message" => "Book already exists"
+                "message" => "too much argument provided"
             ], 400);
         }
 
-        try {
-            DB::beginTransaction();
-            $bookData = $this->fetchBook(null, $ISBN);
-            $totalItems = $bookData->getData()->data->totalItems;
-            $publisher = $bookData->getData()->data->items[0]->volumeInfo->publisher;
-            $author = $bookData->getData()->data->items[0]->volumeInfo->authors;
-            $dateString = $bookData->getData()->data->items[0]->volumeInfo->publishedDate;
-            $title = $bookData->getData()->data->items[0]->volumeInfo->title;
+        elseif ($request !== null) {
+            // Handle the case where only $request is provided
 
-            $publisherID = $PublisherController->getID($publisher);
-            $year = substr($dateString, 0, 4);
+            $request->validate([
+                'ISBN' => 'required|unique:books'
+            ]);
+            $ISBN = $request->input('ISBN');
 
-            if(!$publisherID){
-                $publisherID = $PublisherController->store($publisher);
+            $existingBook = Book::where('ISBN', $ISBN)->first();
+
+            if ($existingBook) {
+                return response()->json([
+                    "code" => 400,
+                    "message" => "Book already exists"
+                ], 400);
             }
+            try {
+                DB::beginTransaction();
+                $bookData = $this->fetchBook(null, $ISBN);
+                $totalItems = $bookData->getData()->data->totalItems;
+                $publisher = $bookData->getData()->data->items[0]->volumeInfo->publisher;
+                $author = $bookData->getData()->data->items[0]->volumeInfo->authors;
+                $dateString = $bookData->getData()->data->items[0]->volumeInfo->publishedDate;
+                $title = $bookData->getData()->data->items[0]->volumeInfo->title;
 
-            if($totalItems > 0) {
-                // books found in google api
-                $created = Book::create([
-                    'ISBN' => $ISBN,
-                    'publisherID' => $publisherID,
-                    'year' => $year,
-                    'tittle' => $title,
-                ]);
-                //loop to store author and bookAuthor
-                for ($i=0; $i < count($author); $i++) {
-                    $authorID = $AuthorController->getID($author[$i]);
-                    if (!$authorID) {
-                        $createdAuthorID = $AuthorController->store($author[$i]);
-                        $BookAuthorController->store($created->ISBN,$createdAuthorID);
-                        echo($createdAuthorID);
-                    } else {
-                        $BookAuthorController->store($created->ISBN,$authorID);
-                        echo($authorID);
-                    }
+                $publisherID = $PublisherController->getID($publisher);
+                $year = substr($dateString, 0, 4);
+
+                if(!$publisherID){
+                    $publisherID = $PublisherController->store($publisher);
                 }
-            } else {
-                // books not found in google api
-                $created = Book::create([
-                    'ISBN' => $request->ISBN,
-                    'publisherID' => $request->publisherID,
-                    'authorID' => $request->authorID,
-                    'year' => $request->year,
-                    'tittle' => $request->tittle,
-                ]);
+
+                if($totalItems > 0) {
+                    // books found in google api
+                    $created = Book::create([
+                        'ISBN' => $ISBN,
+                        'publisherID' => $publisherID,
+                        'year' => $year,
+                        'tittle' => $title,
+                    ]);
+                    //loop to store author and bookAuthor
+                    for ($i=0; $i < count($author); $i++) {
+                        $authorID = $AuthorController->getID($author[$i]);
+                        if (!$authorID) {
+                            $createdAuthorID = $AuthorController->store($author[$i]);
+                            $BookAuthorController->store($created->ISBN,$createdAuthorID);
+                            echo($createdAuthorID);
+                        } else {
+                            $BookAuthorController->store($created->ISBN,$authorID);
+                            echo($authorID);
+                        }
+                    }
+                } else {
+                    // books not found in google api
+                    $created = Book::create([
+                        'ISBN' => $request->ISBN,
+                        'publisherID' => $request->publisherID,
+                        'authorID' => $request->authorID,
+                        'year' => $request->year,
+                        'tittle' => $request->tittle,
+                    ]);
+                }
+                DB::commit();
+                return response()->json([
+                    "code" => 200,
+                    "message" => "success",
+                    "data" =>  $created
+                ], 200);
             }
-            DB::commit();
-            return response()->json([
-                "code" => 200,
-                "message" => "success",
-                "data" =>  $created
-            ], 200);
+            catch (\Exceptions $exceptions) {
+                DB::rollback();
+                return response()->json([
+                    "code" => 500,
+                    "message" => "Internal Server Error",
+                    "error" => $exceptions
+                ], 500);
+            }
         }
-        catch (\Exceptions $exceptions) {
-            DB::rollback();
+
+        elseif ($ISBN !== null || $publisher !== null || $author !== null || $year !== null || $title !== null) {
+            // Handle the case when http request not provided
+            $existingBook = Book::where('ISBN', $ISBN)->first();
+
+            if ($existingBook) {
+                return response()->json([
+                    "code" => 400,
+                    "message" => "Book already exists"
+                ], 400);
+            }
+            try {
+                DB::beginTransaction();
+                $bookData = $this->fetchBook(null, $ISBN);
+                $totalItems = $bookData->getData()->data->totalItems;
+                $publisher = $bookData->getData()->data->items[0]->volumeInfo->publisher;
+                $author = $bookData->getData()->data->items[0]->volumeInfo->authors;
+                $dateString = $bookData->getData()->data->items[0]->volumeInfo->publishedDate;
+                $title = $bookData->getData()->data->items[0]->volumeInfo->title;
+
+                $publisherID = $PublisherController->getID($publisher);
+                $year = substr($dateString, 0, 4);
+
+                if(!$publisherID){
+                    $publisherID = $PublisherController->store($publisher);
+                }
+
+                if($totalItems > 0) {
+                    // books found in google api
+                    $created = Book::create([
+                        'ISBN' => $ISBN,
+                        'publisherID' => $publisherID,
+                        'year' => $year,
+                        'tittle' => $title,
+                    ]);
+                    //loop to store author and bookAuthor
+                    for ($i=0; $i < count($author); $i++) {
+                        $authorID = $AuthorController->getID($author[$i]);
+                        if (!$authorID) {
+                            $createdAuthorID = $AuthorController->store($author[$i]);
+                            $BookAuthorController->store($created->ISBN,$createdAuthorID);
+                            echo($createdAuthorID);
+                        } else {
+                            $BookAuthorController->store($created->ISBN,$authorID);
+                            echo($authorID);
+                        }
+                    }
+                } else {
+                    // books not found in google api
+                    $created = Book::create([
+                        'ISBN' => $ISBN,
+                        'publisherID' => $publisher,
+                        'authorID' => $author,
+                        'year' => $year,
+                        'tittle' => $title,
+                    ]);
+                }
+                DB::commit();
+                return response()->json([
+                    "code" => 200,
+                    "message" => "success",
+                    "data" =>  $created
+                ], 200);
+            }
+            catch (\Exceptions $exceptions) {
+                DB::rollback();
+                return response()->json([
+                    "code" => 500,
+                    "message" => "Internal Server Error",
+                    "error" => $exceptions
+                ], 500);
+            }
+        }
+
+        else {
             return response()->json([
-                "code" => 500,
-                "message" => "Internal Server Error",
-                "error" => $exceptions
-            ], 500);
+                "code" => 400,
+                "message" => "provided no argument, need 1 argument"
+            ], 400);
         }
     }
 

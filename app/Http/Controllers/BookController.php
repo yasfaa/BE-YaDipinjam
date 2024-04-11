@@ -123,17 +123,44 @@ class BookController extends Controller
         $ISBN = $request->input('ISBN');
         $description = $request->input('description');
         $price = $request->input('price');
+        $book = $this->getByISBN(null,$ISBN);
+
+        $isBookExist = true;
+        if ($book->getStatusCode() == 500) {
+            $isBookExist = false;
+        }
 
         try {
             $user = Auth::id();
-            $data = CirculatedBook::create([
-                "BooksISBN" => $ISBN,
-                "description" => $description,
-                "price" => $price,
-                "status" => "available",
-                "userID" => $user
-            ]);
 
+            if (!$user) {
+                return response()->json([
+                    "code" => 401,
+                    "status" => "unauthorized",
+                    "message" => "You are not authorized to access this resource."
+                ], 401);
+            }
+            // Check if the book already exists
+            if ($isBookExist) {
+                $data = CirculatedBook::create([
+                    "BooksISBN" => $ISBN,
+                    "description" => $description,
+                    "price" => $price,
+                    "status" => "available",
+                    "userID" => $user
+                ]);
+            } else {
+                // Create book entity if it doesn't exist
+                $bookEntity = $this->createBook(null,$ISBN);
+                // Create circulated book
+                $data = CirculatedBook::create([
+                    "BooksISBN" => $ISBN,
+                    "description" => $description,
+                    "price" => $price,
+                    "status" => "available",
+                    "userID" => $user
+                ]);
+            }
             return response()->json([
                 "code" => 200,
                 "message" => "success",
@@ -144,7 +171,6 @@ class BookController extends Controller
             return response()->json([
                 "code" => 500,
                 "message" => "Internal Server Error"
-
             ],500);
         }
     }

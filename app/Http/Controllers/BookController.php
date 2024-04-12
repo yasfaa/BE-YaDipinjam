@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\CirculatedBook;
+use App\Models\CirculatedPicture;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\PublisherController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\BookAuthorController;
@@ -264,6 +266,7 @@ class BookController extends Controller
             ],500);
         }
     }
+
     public function fetchBook(Request $request = null, $ISBN = null)
     {
         if ($request != null && $ISBN == null) {
@@ -321,38 +324,69 @@ class BookController extends Controller
             ], 500);
         }
     }
+
     public function getByISBN(Request $request = null, $ISBN = null)
-{
-    try {
-        // If $ISBN is not provided as a parameter, try to get it from the request
-        if (!$ISBN && $request) {
-            $ISBN = $request->query('ISBN');
-        }
+    {
+        try {
+            // If $ISBN is not provided as a parameter, try to get it from the request
+            if (!$ISBN && $request) {
+                $ISBN = $request->query('ISBN');
+            }
 
-        // If $ISBN is still not available, return a response indicating bad request
-        if (!$ISBN) {
+            // If $ISBN is still not available, return a response indicating bad request
+            if (!$ISBN) {
+                return response()->json([
+                    "code" => 400,
+                    "message" => "Bad request: ISBN is required"
+                ], 400);
+            }
+
+            // Find the book with the provided ISBN
+            $book = Book::where('ISBN', $ISBN)->firstOrFail();
+
             return response()->json([
-                "code" => 400,
-                "message" => "Bad request: ISBN is required"
-            ], 400);
+                "code" => 200,
+                "message" => "success",
+                "data" => $book
+            ]);
+        } catch (\Exception $exception) {
+            // Handle exceptions
+            return response()->json([
+                "code" => 500,
+                "message" => "fail",
+                "error" => $exception->getMessage()
+            ], 500);
         }
-
-        // Find the book with the provided ISBN
-        $book = Book::where('ISBN', $ISBN)->firstOrFail();
-
-        return response()->json([
-            "code" => 200,
-            "message" => "success",
-            "data" => $book
-        ]);
-    } catch (\Exception $exception) {
-        // Handle exceptions
-        return response()->json([
-            "code" => 500,
-            "message" => "fail",
-            "error" => $exception->getMessage()
-        ], 500);
     }
-}
 
+    public function storeCirculatedPicture(Request $request)
+    {
+        $circulatedBookID = $request->input('circulated_book');
+        $path = $request->file('picture')->store('public/circ_picture');
+
+
+        try {
+            DB::beginTransaction();
+
+            $created = CirculatedPicture::create([
+                "Circulated_BookID" => $circulatedBookID,
+                "path" => $path
+            ]);
+
+            return response()->json([
+                "code" => 200,
+                "message" => "success",
+                "data" => $created
+            ],200);
+            DB::commit();
+        } catch (\Exceptions $exceptions) {
+            DB::rollback();
+            return response()->json([
+                "code" => 500,
+                "message" => "fail",
+                "error" => $exceptions
+            ], 500);
+        }
+    }
+    
 }

@@ -373,12 +373,12 @@ class BookController extends Controller
                 "path" => $path
             ]);
 
+            DB::commit();
             return response()->json([
                 "code" => 200,
                 "message" => "success",
                 "data" => $created
             ],200);
-            DB::commit();
         } catch (\Exceptions $exceptions) {
             DB::rollback();
             return response()->json([

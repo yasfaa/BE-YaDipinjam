@@ -249,7 +249,7 @@ class BookController extends Controller
                     "BooksISBN" => $ISBN,
                     "description" => $description,
                     "price" => $price,
-                    "status" => "available",
+                    "status" => "unavailable",
                     "userID" => $user
                 ]);
             }

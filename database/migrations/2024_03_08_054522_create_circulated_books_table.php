@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('description');
             $table->integer('price');
-            $table->enum('status', ['available', 'borrowed'])->default('available');
+            $table->enum('status', ['available','unavailable', 'borrowed'])->default('available');
             $table->string('BooksISBN');
             $table->foreign('BooksISBN')->references('isbn')->on('books');
             $table->unsignedBigInteger('userID');

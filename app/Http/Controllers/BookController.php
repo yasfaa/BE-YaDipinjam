@@ -388,5 +388,37 @@ class BookController extends Controller
             ], 500);
         }
     }
-    
+
+    public function setActiveCirculatedBook(Request $request)
+    {
+        $user = Auth::id();
+        $reqeust->input("id");
+        DB::beginTransaction();
+        try {
+            $book = CirculatedBook::find($id);
+            if($book->userID == $user) {
+                $book->status = "available";
+
+                DB::commit();
+                return response()->json([
+                    "code" => 200,
+                    "status" => "success",
+                    "data" => $book
+                ],200);
+            } else {
+                return response()->json([
+                    "code" => 403,
+                    "status" => "forbidden"
+                ],401);
+            }
+
+        } catch (\Exceptions $exceptions) {
+            DB::rollback();
+            return response()->json([
+                "code" => 500,
+                "message" => "fail",
+                "error" => $exceptions
+            ], 500);
+        }
+    }
 }

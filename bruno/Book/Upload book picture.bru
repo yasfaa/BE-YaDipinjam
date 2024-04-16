@@ -1,0 +1,20 @@
+meta {
+  name: Upload book picture
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://127.0.0.1:8000/api/book/upload-picture
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: 2|8RUIgUjOWbOGgQwo4REs4h445grVCoVGQuUV60Qa0eb86a7c
+}
+
+body:multipart-form {
+  circulated_book: 1
+  picture: @file(C:\Users\enzzo\Downloads\Peti\Screenshot_2.png)
+}

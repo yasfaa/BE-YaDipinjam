@@ -1,0 +1,15 @@
+meta {
+  name: Get author
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://127.0.0.1:8000/api/author/get?name=yadi
+  body: none
+  auth: none
+}
+
+query {
+  name: yadi
+}

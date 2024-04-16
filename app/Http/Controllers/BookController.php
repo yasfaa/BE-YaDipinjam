@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\PublisherController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\BookAuthorController;
+use App\Http\Resources\CatalogBookResource;
 use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
@@ -388,5 +389,11 @@ class BookController extends Controller
             ], 500);
         }
     }
-    
+
+    public function index() {
+        $books = Book::latest()->paginate(5);
+
+        return new CatalogBookResource(true, 'list catalog books', $books);
+    }
+
 }

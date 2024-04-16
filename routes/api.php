@@ -36,7 +36,7 @@ Route::prefix('/book')->group(function () {
     Route::post('/upload',[BookController::class,'upload'])->middleware('auth:sanctum');
     Route::get('/get-by-title', [BookController::class,'getByTitle']);
     Route::get('/get-by-isbn', [BookController::class,'getByISBN']);
-
+    Route::get('/catalog', [BookController::class, 'index']);
 });
 
 Route::prefix('/publisher')->group(function () {

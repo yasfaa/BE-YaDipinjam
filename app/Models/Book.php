@@ -24,4 +24,9 @@ class Book extends Model
     {
         return $this->belongsTo(Publisher::class);
     }
+
+    public function circulated_books()
+    {
+        return $this->hasMany(CirculatedBook::class, 'BooksISBN', 'ISBN');
+    }
 }

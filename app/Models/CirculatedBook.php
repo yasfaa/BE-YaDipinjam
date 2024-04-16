@@ -26,4 +26,9 @@ class CirculatedBook extends Model
     {
         return $this->belongsTo(User::class,);
     }
+
+    public function circulated_pictures()
+    {
+        return $this->hasMany(CirculatedPicture::class, 'Circulated_BookID', 'id');
+    }
 }

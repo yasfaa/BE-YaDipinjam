@@ -60,4 +60,19 @@ class AuthController extends Controller
             'message' => 'Successfully logged out!'
         ], 200);
     }
+
+    public function getRole()
+    {
+        try {
+            $user = Auth::user();
+
+            return $user->role;
+        } catch (\Throwable $th) {
+            return response()->json([
+                "code" => 500,
+                "message" => "fail"
+            ], 500);
+        }
+    }
+
 }

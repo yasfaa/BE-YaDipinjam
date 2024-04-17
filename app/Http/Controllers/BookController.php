@@ -298,7 +298,7 @@ class BookController extends Controller
                     "message" => "Error fetching book data"
                 ],404);
             }
-        } catch (\Throwable $e) {
+        } catch (\Exceptions $exceptions) {
             return response()->json([
                 "code" => 500,
                 "message" => "Internal Server Error"
@@ -389,11 +389,72 @@ class BookController extends Controller
             ], 500);
         }
     }
+    public function setActiveCirculatedBook(Request $request)
+    {
+        $user = Auth::id();
+        $reqeust->input("id");
+        DB::beginTransaction();
+        try {
+            $book = CirculatedBook::find($id);
+            if($book->userID == $user) {
+                $book->status = "available";
 
+                DB::commit();
+                return response()->json([
+                    "code" => 200,
+                    "status" => "success",
+                    "data" => $book
+                ],200);
+            } else {
+                return response()->json([
+                    "code" => 403,
+                    "status" => "forbidden"
+                ],401);
+            }
+
+        } catch (\Exceptions $exceptions) {
+            DB::rollback();
+            return response()->json([
+                "code" => 500,
+                "message" => "fail",
+                "error" => $exceptions
+            ], 500);
+        }
+    }
+    //this code bellow will delete db record of circulated picture and delete picture files
+    public function deleteCirculatedPicture(Request $request)
+    {
+        $request->input('ID');
+        $userID = Auth::id();
+        try {
+            // DB::beginTransaction();
+
+            $picture = CirculatedPicture::find();
+            $book = CirculatedBook::find();
+
+            //if picture not found, return 404
+            // if (!$picture) {
+            //     # code...
+            // }
+            // DB::commit();
+            return response()->json([
+                "code" => 200,
+                "status" => "success",
+                "message" => "picture successfully deleted"
+            ]);
+        } catch (\Exceptions $exceptions) {
+            // DB::rollback();
+            return response()->json([
+            "code" => 500,
+            "message" => "fail",
+            "error" => $exceptions
+            ],500);
+        }
+    }
+    
     public function index() {
         $books = Book::latest()->paginate(5);
 
         return new CatalogBookResource(true, 'list catalog books', $books);
     }
-
 }

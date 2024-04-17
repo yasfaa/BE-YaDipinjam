@@ -1,11 +1,11 @@
 meta {
-  name: Upload Book
+  name: get
   type: http
-  seq: 5
+  seq: 2
 }
 
 post {
-  url: http://127.0.0.1:8000/api/book/upload
+  url: http://127.0.0.1:8000/api/auth/get
   body: multipartForm
   auth: bearer
 }
@@ -15,7 +15,6 @@ auth:bearer {
 }
 
 body:multipart-form {
-  ISBN: 9780061234002
-  price: 10000
-  description: Lorem ipsum dolor sit amet
+  email: elakin@example.com
+  password: password
 }

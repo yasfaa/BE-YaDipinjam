@@ -34,9 +34,14 @@ Route::prefix('/book')->group(function () {
     Route::post('/get-by-ISBN',[BookController::class,'fetchBook']);
     Route::post('/store',[BookController::class,'createBook']);
     Route::post('/upload',[BookController::class,'upload'])->middleware('auth:sanctum');
+    Route::post('/upload-picture',[BookController::class,'storeCirculatedPicture']);
     Route::get('/get-by-title', [BookController::class,'getByTitle']);
     Route::get('/get-by-isbn', [BookController::class,'getByISBN']);
     Route::get('/catalog', [BookController::class, 'index']);
+    Route::get('/picture/{filename}', [BookController::class,'showPicture']);
+    Route::post('/get-picture', [BookController::class,'getPicture']);
+
+
 });
 
 Route::prefix('/publisher')->group(function () {
@@ -49,3 +54,8 @@ Route::prefix('/author')->group(function () {
     Route::post('/store',[AuthorController::class,'create']);
     Route::get('/get', [AuthorController::class,'get']);
 });
+
+Route::prefix('/rent')->group(function () {
+    Route::post('/borrow',[AuthorController::class,'create']);
+    Route::get('/get', [AuthorController::class,'get']);
+})->middleware('auth:sanctum');

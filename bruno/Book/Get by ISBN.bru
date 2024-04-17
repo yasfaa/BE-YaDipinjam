@@ -1,0 +1,15 @@
+meta {
+  name: Get by ISBN
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://127.0.0.1:8000/api/book/get-by-isbn?ISBN=031292556
+  body: none
+  auth: none
+}
+
+query {
+  ISBN: 031292556
+}

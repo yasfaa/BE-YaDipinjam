@@ -1,0 +1,15 @@
+meta {
+  name: Fetch book
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://127.0.0.1:8000/api/book/test
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  ISBN: 9780062316097
+}

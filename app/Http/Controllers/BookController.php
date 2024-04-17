@@ -297,7 +297,7 @@ class BookController extends Controller
                     "message" => "Error fetching book data"
                 ],404);
             }
-        } catch (\Throwable $e) {
+        } catch (\Exceptions $exceptions) {
             return response()->json([
                 "code" => 500,
                 "message" => "Internal Server Error"
@@ -419,6 +419,36 @@ class BookController extends Controller
                 "message" => "fail",
                 "error" => $exceptions
             ], 500);
+        }
+    }
+    //this code bellow will delete db record of circulated picture and delete picture files
+    public function deleteCirculatedPicture(Request $request)
+    {
+        $request->input('ID');
+        $userID = Auth::id();
+        try {
+            // DB::beginTransaction();
+
+            $picture = CirculatedPicture::find();
+            $book = CirculatedBook::find();
+
+            //if picture not found, return 404
+            // if (!$picture) {
+            //     # code...
+            // }
+            // DB::commit();
+            return response()->json([
+                "code" => 200,
+                "status" => "success",
+                "message" => "picture successfully deleted"
+            ]);
+        } catch (\Exceptions $exceptions) {
+            // DB::rollback();
+            return response()->json([
+            "code" => 500,
+            "message" => "fail",
+            "error" => $exceptions
+            ],500);
         }
     }
 }
